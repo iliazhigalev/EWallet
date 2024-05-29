@@ -2,6 +2,7 @@ package main
 
 // из файла main.go происходит запуск прогаммы
 import (
+	"ewallet/database"
 	"fmt"
 	"log"
 	"net/http"
@@ -12,6 +13,7 @@ func home_page(w http.ResponseWriter, r *http.Request) {
 
 }
 func main() {
+	database.ConnectDb()
 
 	log.Println("Server started at :3000")
 	http.HandleFunc("/", home_page)
