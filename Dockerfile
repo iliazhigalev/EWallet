@@ -2,8 +2,10 @@ FROM golang:1.20.0
 
 WORKDIR /usr/src/app
 
-COPY . .
+COPY go.mod go.sum ./
 
-RUN go mod tidy
+RUN go mod download
+
+COPY . .
 
 EXPOSE 3000
