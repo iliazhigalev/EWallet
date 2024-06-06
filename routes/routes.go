@@ -1,7 +1,7 @@
 package routes
 
 import (
-	"net/http"
+	"ewallet/pkg/handler"
 
 	"github.com/gorilla/mux"
 	"gorm.io/gorm"
@@ -12,14 +12,7 @@ func InitRoutes(db *gorm.DB) *mux.Router {
 	router := mux.NewRouter()
 
 	// Регистрация обработчика для маршрута "/hello"
-	router.HandleFunc("/hello", helloHandler)
+	router.HandleFunc("/hello", handler.HelloHandler).Methods("GET")
 
 	return router
-}
-
-// Обработчик для маршрута "/hello"
-func helloHandler(w http.ResponseWriter, r *http.Request) {
-	// Отправка приветственного сообщения
-	w.WriteHeader(http.StatusOK)
-	w.Write([]byte("Привет, мир"))
 }
