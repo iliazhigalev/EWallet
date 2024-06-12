@@ -1,30 +1,59 @@
 package handler
 
 import (
+	"database/sql"
+	"encoding/json"
+	"ewallet/database"
+	"ewallet/models"
+	"ewallet/utils"
 	"net/http"
 	"net/http/httptest"
 	"testing"
+
+	"github.com/DATA-DOG/go-sqlmock"
+	"github.com/stretchr/testify/assert"
 )
 
-func TestHelloHandler(t *testing.T) {
-	req, err := http.NewRequest("GET", "/hello", nil)
+var mockDB *sql.DB
+var mock sqlmock.Sqlmock
+
+func init() {
+	var err error
+	mockDB, mock, err = sqlmock.New()
 	if err != nil {
-		t.Fatal(err)
+		panic("failed to open sqlmock database connection")
+	}
+}
+
+func TestCreateWallet(t *testing.T) {
+
+	utils.GenerateID = func() string {
+		return "test-id"
 	}
 
-	rec := httptest.NewRecorder() // тип Recorder удовлетовряет интефрейсу ResponseWriter
-	handler := http.HandlerFunc(HelloHandler)
+	recorder := httptest.NewRecorder()
+	request, _ := http.NewRequest("POST", "/api/v1/wallet", nil)
 
-	handler.ServeHTTP(rec, req)
-
-	if status := rec.Code; status != http.StatusOK {
-		t.Errorf("handler returned wrong status code: got %v want %v",
-			status, http.StatusOK)
+	oldConnectDb := database.ConnectDb
+	defer func() { database.ConnectDb = oldConnectDb }()
+	database.ConnectDb = func() (*sql.DB, error) {
+		return mockDB, nil
 	}
 
-	expected := "Привет, мир" // когда буду API тестировать здесь будет уже объект json , к примеру, expected := `{"alive": true}`
-	if rec.Body.String() != expected {
-		t.Errorf("handler returned unexpected body: got %v want %v",
-			rec.Body.String(), expected)
+	mock.ExpectExec("INSERT INTO wallets").
+		WithArgs("test-id", 100.0).
+		WillReturnResult(sqlmock.NewResult(1, 1))
+
+	CreateWallet(recorder, request)
+
+	assert.Equal(t, http.StatusOK, recorder.Code)
+	var wallet models.Wallet
+	err := json.NewDecoder(recorder.Body).Decode(&wallet)
+	assert.NoError(t, err)
+	assert.Equal(t, "test-id", wallet.ID)
+	assert.Equal(t, 100.0, wallet.Balance)
+
+	if err := mock.ExpectationsWereMet(); err != nil {
+		t.Errorf("there were unfulfilled expectations: %s", err)
 	}
 }

@@ -4,15 +4,15 @@ import (
 	"ewallet/pkg/handler"
 
 	"github.com/gorilla/mux"
-	"gorm.io/gorm"
 )
 
-// InitRoutes initializes the routes and injects the database connection.
-func InitRoutes(db *gorm.DB) *mux.Router {
+func InitRoutes() *mux.Router {
 	router := mux.NewRouter()
 
-	// Регистрация обработчика для маршрута "/hello"
-	router.HandleFunc("/hello", handler.HelloHandler).Methods("GET")
+	router.HandleFunc("/api/v1/wallet", handler.CreateWallet).Methods("POST")
+	router.HandleFunc("/api/v1/wallet/{walletId}/send", handler.SendMoney).Methods("POST")
+	router.HandleFunc("/api/v1/wallet/{walletId}/history", handler.GetTransactionHistory).Methods("GET")
+	router.HandleFunc("/api/v1/wallet/{walletId}", handler.GetWallet).Methods("GET")
 
 	return router
 }
