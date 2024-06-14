@@ -3,7 +3,7 @@ package main
 
 import (
 	"ewallet/config"
-	"ewallet/database"
+	"ewallet/internal/database"
 	"ewallet/routes"
 	"log"
 	"net/http"

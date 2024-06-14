@@ -1,7 +1,7 @@
 package routes
 
 import (
-	"ewallet/pkg/handler"
+	"ewallet/internal/handler"
 
 	"github.com/gorilla/mux"
 )

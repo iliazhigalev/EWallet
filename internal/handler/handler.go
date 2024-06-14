@@ -3,9 +3,9 @@ package handler
 import (
 	"database/sql"
 	"encoding/json"
-	"ewallet/database"
-	"ewallet/models"
-	"ewallet/utils"
+	"ewallet/internal/database"
+	"ewallet/internal/models"
+	"ewallet/pkg/utils"
 	"log"
 	"net/http"
 	"time"
