@@ -8,9 +8,9 @@ type Wallet struct {
 }
 
 type Transaction struct {
-	ID     string    `json:"id"`
-	Time   time.Time `json:"time"`
-	From   string    `json:"from"`
-	To     string    `json:"to"`
-	Amount float64   `json:"amount"`
+	ID         string    `json:"id"`
+	Time       time.Time `json:"time"`
+	FromWallet string    `json:"from_wallet"`
+	ToWallet   string    `json:"to_wallet"`
+	Amount     float64   `json:"amount"`
 }
