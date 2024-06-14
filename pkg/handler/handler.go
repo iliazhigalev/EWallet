@@ -61,7 +61,90 @@ func CreateWallet(w http.ResponseWriter, r *http.Request) {
 }
 
 func SendMoney(w http.ResponseWriter, r *http.Request) {
-	// Implement the function
+	vars := mux.Vars(r)
+	fromWalletID := vars["walletId"]
+
+	var request struct {
+		To     string  `json:"to"`
+		Amount float64 `json:"amount"`
+	}
+
+	if err := json.NewDecoder(r.Body).Decode(&request); err != nil {
+		http.Error(w, "Invalid request body", http.StatusBadRequest)
+		return
+	}
+
+	toWalletID := request.To
+	amount := request.Amount
+
+	db, err := database.ConnectDb()
+	if err != nil {
+		http.Error(w, "Failed to connect to database", http.StatusInternalServerError)
+		return
+	}
+	defer db.Close()
+
+	var fromWalletBalance float64
+	err = db.QueryRow("SELECT balance FROM wallets WHERE id = $1", fromWalletID).Scan(&fromWalletBalance)
+	if err == sql.ErrNoRows {
+		http.Error(w, "From wallet not found", http.StatusNotFound)
+		return
+	} else if err != nil {
+		http.Error(w, "Failed to retrieve from wallet", http.StatusInternalServerError)
+		return
+	}
+
+	if fromWalletBalance < amount {
+		http.Error(w, "Insufficient funds in from wallet", http.StatusBadRequest)
+		return
+	}
+
+	var toWalletBalance float64
+	err = db.QueryRow("SELECT balance FROM wallets WHERE id = $1", toWalletID).Scan(&toWalletBalance)
+	if err == sql.ErrNoRows {
+		http.Error(w, "To wallet not found", http.StatusBadRequest)
+		return
+	} else if err != nil {
+		http.Error(w, "Failed to retrieve to wallet", http.StatusInternalServerError)
+		return
+	}
+
+	tx, err := db.Begin()
+	if err != nil {
+		http.Error(w, "Failed to begin transaction", http.StatusInternalServerError)
+		return
+	}
+
+	_, err = tx.Exec("UPDATE wallets SET balance = balance - $1 WHERE id = $2", amount, fromWalletID)
+	if err != nil {
+		tx.Rollback()
+		http.Error(w, "Failed to update from wallet balance", http.StatusInternalServerError)
+		return
+	}
+
+	_, err = tx.Exec("UPDATE wallets SET balance = balance + $1 WHERE id = $2", amount, toWalletID)
+	if err != nil {
+		tx.Rollback()
+		http.Error(w, "Failed to update to wallet balance", http.StatusInternalServerError)
+		return
+	}
+
+	transactionID := utils.GenerateID()
+	_, err = tx.Exec("INSERT INTO transactions (id, time, from_wallet, to_wallet, amount) VALUES ($1, $2, $3, $4, $5)",
+		transactionID, time.Now(), fromWalletID, toWalletID, amount)
+	if err != nil {
+		tx.Rollback()
+		http.Error(w, "Failed to log transaction", http.StatusInternalServerError)
+		return
+	}
+
+	err = tx.Commit()
+	if err != nil {
+		http.Error(w, "Failed to commit transaction", http.StatusInternalServerError)
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
 }
 
 func GetTransactionHistory(w http.ResponseWriter, r *http.Request) {
