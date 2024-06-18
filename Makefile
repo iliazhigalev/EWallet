@@ -24,6 +24,10 @@ stop:
 test:
 	docker-compose run web go test -v ./...
 
+## lint: Run linter to check for issues.
+lint:
+	docker-compose run web golangci-lint run ./...
+
 ## build: Build the application using Docker.
 build:
 	docker-compose build
@@ -33,4 +37,4 @@ clean:
 	docker-compose down -v
 	rm -rf bin/
 
-.PHONY: help install start stop test build clean
+.PHONY: help install start stop test lint build clean

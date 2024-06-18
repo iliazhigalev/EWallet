@@ -1,9 +1,1 @@
-package handler
-
-func TestCreateWallet() {
-
-}
-
-func TestGetWallet() {
-
-}
+package test

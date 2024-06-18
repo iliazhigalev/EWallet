@@ -31,14 +31,14 @@ func ConnectDb() (*sql.DB, error) {
 
 	log.Println("connected")
 
-	if err := migrateDB(); err != nil {
+	if err := InitDB(); err != nil {
 		log.Fatalf("Error migrating database: %v", err)
 	}
 
 	return db, nil
 }
 
-func migrateDB() error {
+func InitDB() error {
 	_, err := db.Exec(`CREATE TABLE IF NOT EXISTS wallets (
 		id VARCHAR(36) PRIMARY KEY,
 		balance NUMERIC(15, 2)
