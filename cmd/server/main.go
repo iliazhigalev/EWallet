@@ -2,23 +2,33 @@
 package main
 
 import (
-	"ewallet/config"
-	"ewallet/internal/database"
-	"ewallet/routes"
 	"log"
 	"net/http"
+
+	"ewallet/config"
+	"ewallet/internal/database"
+	"ewallet/internal/handler"
+	"ewallet/internal/repository/transaction"
+	"ewallet/internal/repository/wallet"
+	"ewallet/internal/service"
+	"ewallet/routes"
 )
 
 func main() {
 
 	config.InitConfig()
 
-	_, err := database.ConnectDb()
+	walletRepo := wallet.New()
+	transactionRepo := transaction.New()
+	db, err := database.ConnectDb()
 	if err != nil {
 		log.Fatal("Failed to connect to database:", err)
 	}
 
-	router := routes.InitRoutes()
+	eWalletService := service.NewEWallet(db, walletRepo, transactionRepo)
+	handlerItem := handler.New(eWalletService)
+
+	router := routes.InitRoutes(handlerItem)
 
 	log.Println("Starting server on :3000")
 	if err := http.ListenAndServe(":3000", router); err != nil {
