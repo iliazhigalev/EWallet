@@ -10,6 +10,9 @@ import (
 
 type handlerItem interface {
 	CreateWallet(w http.ResponseWriter, r *http.Request)
+	SendMoney(w http.ResponseWriter, r *http.Request)
+	GetTransactionHistory(w http.ResponseWriter, r *http.Request)
+	GetWallet(w http.ResponseWriter, r *http.Request)
 }
 
 func InitRoutes(handlerItem handlerItem) *mux.Router {
@@ -21,6 +24,9 @@ func InitRoutes(handlerItem handlerItem) *mux.Router {
 	router.HandleFunc("/api/v1/wallet/{walletId}", handler.GetWallet).Methods("GET")
 
 	router.HandleFunc("/api/v2/wallet", handlerItem.CreateWallet).Methods("POST")
+	router.HandleFunc("/api/v2/wallet/{walletId}/send", handlerItem.SendMoney).Methods("POST")
+	router.HandleFunc("/api/v2/wallet/{walletId}/history", handlerItem.GetTransactionHistory).Methods("GET")
+	router.HandleFunc("/api/v2/wallet/{walletId}", handlerItem.GetWallet).Methods("GET")
 
 	return router
 }

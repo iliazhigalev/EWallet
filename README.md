@@ -14,5 +14,5 @@ EWallet - это приложение для обработки транзакц
 
 1. Клонируйте репозиторий:
    ```sh
-   git clone https://github.com/yourusername/ewallet.git
+   git clone https://github.com/iliazhigalev/ewallet.git
    cd ewallet
