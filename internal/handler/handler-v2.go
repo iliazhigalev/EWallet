@@ -10,19 +10,14 @@ import (
 type eWalletService interface {
 	CreateWallet(ctx context.Context) (models.Wallet, error)
 	GetWallet(ctx context.Context, walletID string) (models.Wallet, error)
+	SendMoney(ctx context.Context, walletID string, request SendRequest) error
 }
 
 type Handler struct {
 	eWalletService eWalletService
 }
 
-// GetTransactionHistory implements routes.handlerItem.
 func (h *Handler) GetTransactionHistory(w http.ResponseWriter, r *http.Request) {
-	panic("unimplemented")
-}
-
-// SendMoney implements routes.handlerItem.
-func (h *Handler) SendMoney(w http.ResponseWriter, r *http.Request) {
 	panic("unimplemented")
 }
 

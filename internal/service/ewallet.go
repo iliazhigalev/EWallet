@@ -9,6 +9,7 @@ import (
 type walletRepository interface {
 	Create(ctx context.Context, db DB, wallet models.Wallet) error
 	GetByWalletID(ctx context.Context, db DB, walletID string) (models.Wallet, error)
+	UpdateBalance(ctx context.Context, db DB, walletID string, balance float64) error
 }
 
 type transactionRepository interface {
