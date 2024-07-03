@@ -6,47 +6,42 @@ import (
 	"errors"
 	"net/http"
 
-	"ewallet/internal/service"
+	"ewallet/internal/dto"
 
 	"github.com/gorilla/mux"
 )
 
-type SendRequest struct {
-	To     string  `json:"to"`     // id куда нужна перевести деньги
-	Amount float64 `json:"amount"` // сумма перевода
-}
-
-func (h *Handler) SendMoney(w http.ResponseWriter, r *http.Request) error {
+func (h Handler) SendMoney(w http.ResponseWriter, r *http.Request) {
 	ctx := context.Background()
 	vars := mux.Vars(r)
 	walletId := vars["walletId"]
 
-	var req SendRequest // содержит id куда надо перевести деньги
+	var req dto.SendRequest // содержит id куда надо перевести деньги
 
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 		http.Error(w, "Invalid request body", http.StatusBadRequest)
-		return err
+		return
 	}
 
 	err := h.eWalletService.SendMoney(ctx, walletId, req)
 	if err != nil {
-		if errors.Is(err, service.ErrWalletNotFound) {
+		if errors.Is(err, dto.ErrWalletNotFound) {
 			http.Error(w, "From wallet not found", http.StatusNotFound)
-			return err
-		} else if errors.Is(err, service.ErrInsufficientFunds) {
+			return
+		} else if errors.Is(err, dto.ErrInsufficientFunds) {
 			http.Error(w, "Insufficient funds for transfer to another wallet", http.StatusBadRequest)
-			return err
-		} else if errors.Is(err, service.ErrTargetWalletNotFound) {
+			return
+		} else if errors.Is(err, dto.ErrTargetWalletNotFound) {
 			http.Error(w, "The target wallet was not found", http.StatusBadRequest)
-			return err
+			return
 		} else {
 			http.Error(w, "the server is not responding", http.StatusInternalServerError)
-			return err
+			return
 		}
 
 	}
 
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
-	return nil
+	return
 }

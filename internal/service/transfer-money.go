@@ -2,48 +2,35 @@ package service
 
 import (
 	"context"
-	"errors"
-	"ewallet/internal/handler"
+	"ewallet/internal/dto"
 	"ewallet/internal/models"
-	"ewallet/internal/repository/wallet"
 	"ewallet/pkg/utils"
 	"time"
 )
 
-var (
-	ErrWalletNotFound       = errors.New("outgoing wallet not found")
-	ErrInsufficientFunds    = errors.New("insufficient funds")
-	ErrTargetWalletNotFound = errors.New("target wallet not found")
-)
-
-type SendRequest struct {
-	To     string  `json:"to"`     // id куда нужна перевести деньги
-	Amount float64 `json:"amount"` // сумма перевода
-}
-
-func (e EWallet) SendMoney(ctx context.Context, walletID string, request handler.SendRequest) error {
+func (e EWallet) SendMoney(ctx context.Context, walletID string, request dto.SendRequest) error {
 	tx, err := e.db.Begin()
 	if err != nil {
 		return err
 	}
 	fromWallet, err := e.walletRepo.GetByWalletID(ctx, tx, walletID)
-	if err == wallet.ErrNotFound {
-		return ErrWalletNotFound
+	if err == dto.ErrNotFound {
+		return dto.ErrWalletNotFound
 	}
 	toWallet, err := e.walletRepo.GetByWalletID(ctx, tx, request.To)
-	if err == wallet.ErrNotFound {
-		return ErrTargetWalletNotFound
+	if err == dto.ErrNotFound {
+		return dto.ErrTargetWalletNotFound
 	}
-	if fromWallet.Balance < request.Amount {
-		return ErrInsufficientFunds
+	if fromWallet.Balance < request.Balance {
+		return dto.ErrInsufficientFunds
 	} else {
-		fromBalance := fromWallet.Balance - request.Amount
+		fromBalance := fromWallet.Balance - request.Balance
 		err = e.walletRepo.UpdateBalance(ctx, tx, fromWallet.ID, fromBalance)
 		if err != nil {
 			tx.Rollback()
 			return err
 		}
-		toBalance := toWallet.Balance + request.Amount
+		toBalance := toWallet.Balance + request.Balance
 		err := e.walletRepo.UpdateBalance(ctx, tx, toWallet.ID, toBalance)
 		if err != nil {
 			tx.Rollback()

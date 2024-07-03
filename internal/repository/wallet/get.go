@@ -2,12 +2,10 @@ package wallet
 
 import (
 	"context"
-	"errors"
+	"ewallet/internal/dto"
 	"ewallet/internal/models"
 	"ewallet/internal/service"
 )
-
-var ErrNotFound = errors.New("resource not found")
 
 func (w *Wallet) GetByWalletID(ctx context.Context, db service.DB, walletID string) (models.Wallet, error) {
 	var wallet models.Wallet
@@ -16,7 +14,7 @@ func (w *Wallet) GetByWalletID(ctx context.Context, db service.DB, walletID stri
 
 	err := row.Scan(&wallet.ID, &wallet.Balance)
 	if err != nil {
-		return wallet, ErrNotFound
+		return wallet, dto.ErrNotFound
 	}
 
 	return wallet, nil
