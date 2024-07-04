@@ -2,7 +2,7 @@ package database
 
 import (
 	"database/sql"
-	"ewallet/config"
+	"ewallet/internal/config"
 	"fmt"
 	"log"
 

@@ -14,6 +14,7 @@ type walletRepository interface {
 
 type transactionRepository interface {
 	Create(ctx context.Context, db DB, wallet models.Transaction) error
+	GetTransactionRecord(ctx context.Context, db DB, walletID string) ([]models.Transaction, error)
 }
 
 type EWallet struct {

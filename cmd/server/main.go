@@ -4,13 +4,13 @@ import (
 	"log"
 	"net/http"
 
-	"ewallet/config"
+	"ewallet/internal/config"
 	"ewallet/internal/database"
 	"ewallet/internal/handler"
 	"ewallet/internal/repository/transaction"
 	"ewallet/internal/repository/wallet"
+	"ewallet/internal/routes"
 	"ewallet/internal/service"
-	"ewallet/routes"
 )
 
 func main() {
