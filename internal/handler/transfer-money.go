@@ -11,7 +11,7 @@ import (
 	"github.com/gorilla/mux"
 )
 
-func (h Handler) SendMoney(w http.ResponseWriter, r *http.Request) {
+func (h *Handler) SendMoney(w http.ResponseWriter, r *http.Request) {
 	ctx := context.Background()
 	vars := mux.Vars(r)
 	walletId := vars["walletId"]

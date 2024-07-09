@@ -7,7 +7,7 @@ import (
 	"net/http"
 )
 
-func (h Handler) CreateWallet(w http.ResponseWriter, _ *http.Request) {
+func (h *Handler) CreateWallet(w http.ResponseWriter, _ *http.Request) {
 	ctx := context.Background()
 	wallet, err := h.eWalletService.CreateWallet(ctx)
 	if err != nil {

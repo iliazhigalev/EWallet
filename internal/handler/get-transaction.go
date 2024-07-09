@@ -9,7 +9,7 @@ import (
 	"github.com/gorilla/mux"
 )
 
-func (h Handler) GetTransactionHistory(w http.ResponseWriter, r *http.Request) {
+func (h *Handler) GetTransactionHistory(w http.ResponseWriter, r *http.Request) {
 	ctx := context.Background()
 	vars := mux.Vars(r)
 	walletId := vars["walletId"]
@@ -19,6 +19,11 @@ func (h Handler) GetTransactionHistory(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	history, err := h.eWalletService.GetTransactionHistory(ctx, walletId)
+	if err != nil {
+		http.Error(w, fmt.Sprintf("failed to get transaction history %s", err), http.StatusInternalServerError)
+		return
+
+	}
 
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)

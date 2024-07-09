@@ -9,7 +9,7 @@ import (
 	"github.com/gorilla/mux"
 )
 
-func (h Handler) GetWallet(w http.ResponseWriter, r *http.Request) {
+func (h *Handler) GetWallet(w http.ResponseWriter, r *http.Request) {
 	ctx := context.Background()
 	vars := mux.Vars(r)
 	walletId := vars["walletId"]

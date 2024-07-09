@@ -8,7 +8,7 @@ import (
 	"time"
 )
 
-func (e EWallet) SendMoney(ctx context.Context, walletID string, request dto.SendRequest) error {
+func (e *EWallet) SendMoney(ctx context.Context, walletID string, request dto.SendRequest) error {
 	tx, err := e.db.Begin()
 	if err != nil {
 		return err
@@ -45,6 +45,10 @@ func (e EWallet) SendMoney(ctx context.Context, walletID string, request dto.Sen
 		})
 		if err != nil {
 			tx.Rollback()
+			return err
+		}
+		err = tx.Commit()
+		if err != nil {
 			return err
 		}
 	}

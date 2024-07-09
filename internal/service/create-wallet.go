@@ -14,17 +14,11 @@ const (
 	adminID     = "admin1"
 )
 
-func (e EWallet) CreateWallet(ctx context.Context) (m models.Wallet, er error) {
+func (e *EWallet) CreateWallet(ctx context.Context) (m models.Wallet, er error) {
 	tx, err := e.db.Begin()
 	if err != nil {
 		return models.Wallet{}, err
 	}
-	defer func(e error) {
-		if e != nil {
-			tx.Rollback()
-		}
-		tx.Commit()
-	}(er)
 
 	wallet := models.Wallet{
 		ID:      utils.GenerateID(),
